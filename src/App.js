@@ -3,7 +3,6 @@ import * as BooksAPI from './BooksAPI';
 import { Route, Link, Routes } from "react-router-dom";
 import BooksList from './components/BooksList';
 import BookSearch from "./components/BookSearch";
-import { debounce } from 'throttle-debounce';
 import './App.css';
 
 class BooksApp extends React.Component {
@@ -33,39 +32,47 @@ class BooksApp extends React.Component {
   };
 
 
-  moveBook = (book, shelf) => {
+  changeShelf = (book, shelf) => {
     BooksAPI.update(book, shelf);
 
-    let updatedBooks = [];
-    updatedBooks = this.state.books.filter(b => b.id !== book.id);
+    let libraryBooks = this.state.books;
+    let newBooks = [];
+    newBooks = libraryBooks.filter(b => {
+      return b.id !== book.id
+    });
+    // newBooks = libraryBooks.splice(0, libraryBooks.length, ...libraryBooks.filter(b => {
+    //   return b.id !== book.id
+    // }));
 
     if (shelf !== 'none') {
       book.shelf = shelf;
-      updatedBooks = updatedBooks.concat(book);
-    }
+      newBooks = newBooks.concat(book);
+    };
 
     this.setState({
-      books: updatedBooks
+      books: newBooks
     });
   };
 
-  searchForBooks = debounce(300, false, query => {
-    if (query.length > 0) {
-      BooksAPI.search(query).then(books => {
-        if (books.err) {
-          this.setState({ searchBooks: [] });
-          console.log("err")
-        } else {
-          this.setState({ searchBooks: books });
+  // this function is for searching a book
+  searchForBooks = q => {
+    if (q.length > 0) {
+      BooksAPI.search(q).then(books => {
+
+        try {
+          this.setState({ searchBooks: books })
+        } catch (err) {
+          this.setState({ searchBooks: [] })
+          console.log(err)
         }
       });
     } else {
       this.setState({ searchBooks: [] });
     }
-  });
+  };
 
-
-  resetSearch = () => {
+  // clearing the search books array
+  clearSearch = () => {
     this.setState({ searchBooks: [] });
   };
 
@@ -78,7 +85,7 @@ class BooksApp extends React.Component {
             <BooksList
               bookshelves={this.bookshelves}
               books={this.state.books}
-              onMove={this.moveBook}
+              onMove={this.changeShelf}
             />
           }
           />
@@ -86,9 +93,9 @@ class BooksApp extends React.Component {
             <BookSearch
               searchBooks={this.state.searchBooks}
               myBooks={this.state.books}
-              onMove={this.moveBook}
+              onMove={this.changeShelf}
               onSearch={this.searchForBooks}
-              onResetSearch={this.resetSearch} />
+              onResetSearch={this.clearSearch} />
           } />
         </Routes>
 
