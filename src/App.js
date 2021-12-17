@@ -22,15 +22,15 @@ class BooksApp extends React.Component {
      */
     showSearchPage: false,
     books: [],
-    searchBooks: []
+    searchBooks: [],
+    err: false
   };
 
-  componentDidMount = () => {
-    BooksAPI.getAll().then(books => {
-      this.setState({ books: books });
-    });
-  };
+  async componentDidMount() {
+    const newBooks = await BooksAPI.getAll();
+    this.setState({ books: newBooks })
 
+  };
 
   changeShelf = (book, shelf) => {
     BooksAPI.update(book, shelf);
@@ -54,30 +54,34 @@ class BooksApp extends React.Component {
     });
   };
 
+  // clearing the search books array
+  clearSearch = () => {
+    this.setState({ searchBooks: [] });
+  };
   // this function is for searching a book
   searchForBooks = q => {
     if (q.length > 0) {
       BooksAPI.search(q).then(books => {
-
-        try {
-          this.setState({ searchBooks: books })
-        } catch (err) {
+        if (books.error) {
           this.setState({ searchBooks: [] })
-          console.log(err)
+        } else {
+          this.setState({ searchBooks: books });
+
         }
-      });
+      }).catch(err => {
+        this.clearSearch()
+        // this.setState({ searchBooks: [] })
+        console.log("it's error", err)
+      })
+
     } else {
       this.setState({ searchBooks: [] });
     }
   };
 
-  // clearing the search books array
-  clearSearch = () => {
-    this.setState({ searchBooks: [] });
-  };
-
 
   render() {
+
     return (
       <div className="app">
         <Routes>

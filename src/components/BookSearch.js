@@ -26,7 +26,7 @@ class BookSearch extends React.Component {
       myBooks.map((b) => {
         if (b.id === book.id) {
           book.shelf = b.shelf;
-          console.log("test");
+          // console.log("test it's true");
         }
         return b;
       });
@@ -56,6 +56,7 @@ class BookSearch extends React.Component {
                 placeholder="Search by title or author"
                 value={this.state.value}
                 onChange={this.handleChange}
+                autoFocus
               />
             </div>
           </div>
