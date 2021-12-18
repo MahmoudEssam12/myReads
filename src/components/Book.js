@@ -7,6 +7,7 @@ class Book extends React.Component {
   handleChange = (e) => {
     this.setState({ value: e.target.value });
     this.props.onMove(this.props.book, e.target.value);
+
   };
   render() {
     const {

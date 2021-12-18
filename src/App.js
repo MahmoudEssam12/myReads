@@ -3,6 +3,7 @@ import * as BooksAPI from './BooksAPI';
 import { Route, Link, Routes } from "react-router-dom";
 import BooksList from './components/BooksList';
 import BookSearch from "./components/BookSearch";
+import { debounce } from 'throttle-debounce';
 import './App.css';
 
 class BooksApp extends React.Component {
@@ -14,16 +15,8 @@ class BooksApp extends React.Component {
   ];
 
   state = {
-    /**
-     * TODO: Instead of using this state variable to keep track of which page
-     * we're on, use the URL in the browser's address bar. This will ensure that
-     * users can use the browser's back and forward buttons to navigate between
-     * pages, as well as provide a good URL they can bookmark and share.
-     */
-    showSearchPage: false,
     books: [],
     searchBooks: [],
-    err: false
   };
 
   async componentDidMount() {
@@ -34,20 +27,6 @@ class BooksApp extends React.Component {
 
   changeShelf = (book, shelf) => {
     BooksAPI.update(book, shelf);
-
-    // let libraryBooks = this.state.books;
-    // let newBooks = [];
-    // newBooks = libraryBooks.filter(b => {
-    //   return b.id !== book.id
-    // });
-    // newBooks = libraryBooks.splice(0, libraryBooks.length, ...libraryBooks.filter(b => {
-    //   return b.id !== book.id
-    // }));
-
-    // if (shelf !== 'none') {
-    //   book.shelf = shelf;
-    //   newBooks = newBooks.concat(book);
-    // };
 
     if (shelf === 'none') {
       this.setState(prevState => ({
@@ -60,9 +39,6 @@ class BooksApp extends React.Component {
       }));
     }
 
-    // this.setState({
-    //   books: newBooks
-    // });
   };
 
   // clearing the search books array
@@ -70,14 +46,21 @@ class BooksApp extends React.Component {
     this.setState({ searchBooks: [] });
   };
   // this function is for searching a book
-  searchForBooks = q => {
+  searchForBooks = debounce(300, false, q => {
     if (q.length > 0) {
       BooksAPI.search(q).then(books => {
         if (books.error) {
           this.setState({ searchBooks: [] })
         } else {
-          this.setState({ searchBooks: books });
+          books.forEach(book => {
+            if (book.hasOwnProperty("shelf")) {
+              console.log(book);
+            } else {
+              book.shelf = "none";
+            }
+          })
 
+          this.setState({ searchBooks: books });
         }
       }).catch(err => {
         this.clearSearch()
@@ -88,7 +71,7 @@ class BooksApp extends React.Component {
     } else {
       this.setState({ searchBooks: [] });
     }
-  };
+  });
 
 
   render() {
