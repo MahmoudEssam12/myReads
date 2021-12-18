@@ -35,23 +35,34 @@ class BooksApp extends React.Component {
   changeShelf = (book, shelf) => {
     BooksAPI.update(book, shelf);
 
-    let libraryBooks = this.state.books;
-    let newBooks = [];
-    newBooks = libraryBooks.filter(b => {
-      return b.id !== book.id
-    });
+    // let libraryBooks = this.state.books;
+    // let newBooks = [];
+    // newBooks = libraryBooks.filter(b => {
+    //   return b.id !== book.id
+    // });
     // newBooks = libraryBooks.splice(0, libraryBooks.length, ...libraryBooks.filter(b => {
     //   return b.id !== book.id
     // }));
 
-    if (shelf !== 'none') {
-      book.shelf = shelf;
-      newBooks = newBooks.concat(book);
-    };
+    // if (shelf !== 'none') {
+    //   book.shelf = shelf;
+    //   newBooks = newBooks.concat(book);
+    // };
 
-    this.setState({
-      books: newBooks
-    });
+    if (shelf === 'none') {
+      this.setState(prevState => ({
+        books: prevState.books.filter(b => b.id !== book.id)
+      }));
+    } else {
+      book.shelf = shelf;
+      this.setState(prevState => ({
+        books: prevState.books.filter(b => b.id !== book.id).concat(book)
+      }));
+    }
+
+    // this.setState({
+    //   books: newBooks
+    // });
   };
 
   // clearing the search books array

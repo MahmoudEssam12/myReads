@@ -23,6 +23,7 @@ class BookSearch extends React.Component {
     } = this.props;
 
     const updatedBooks = searchBooks.map((book) => {
+      console.log(book)
       myBooks.map((b) => {
         if (b.id === book.id) {
           book.shelf = b.shelf;
