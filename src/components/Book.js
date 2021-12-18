@@ -29,7 +29,7 @@ class Book extends React.Component {
                 }}
               />
               <div className="book-shelf-changer">
-                <select value={this.state.value} onChange={this.handleChange}>
+                <select value={book.shelf} onChange={this.handleChange}>
                   <option value="move" disabled>
                     Move to...
                   </option>
